@@ -14,7 +14,8 @@ import {
   ChevronRight,
   LogOut,
   Sun,
-  Moon
+  Moon,
+  User
 } from 'lucide-react';
 import { ConversationItem } from './conversation-item';
 import { useChatStore } from '@/lib/stores/chat-store';
@@ -379,8 +380,21 @@ export function ConversationSidebar({ isOpen, onClose, className }: Conversation
           )}
         </div>
 
-        {/* Logout — sticky at bottom */}
-        <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
+        {/* User Actions — sticky at bottom */}
+        <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 space-y-2">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => {
+              router.push('/profile');
+              closeSidebarOnMobile();
+            }}
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-600 dark:hover:bg-primary-900/20 dark:hover:border-primary-800 dark:hover:text-primary-400 transition-all duration-200 group"
+            title="Profile & Analytics"
+          >
+            <User className="w-4 h-4 transition-transform group-hover:scale-110" />
+            <span className="text-sm font-medium">Profile & Analytics</span>
+          </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}

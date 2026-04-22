@@ -141,6 +141,10 @@ export interface ChatStats {
   cacheHitRate: number;
   totalCostSaved: number;
   averageResponseTime: number;
+  averageResponseTimeCacheHit: number;
+  averageResponseTimeLive: number;
+  totalTokensUsed: number;
+  totalTokensSaved: number;
   topModels: Array<{
     model: string;
     provider: string;

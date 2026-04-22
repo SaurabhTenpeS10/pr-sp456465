@@ -280,6 +280,111 @@ def regenerate_message(
     )
 
 
+@router.get("/stats")
+def get_chat_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return aggregated statistics for the authenticated user."""
+    total_conversations = (
+        db.query(func.count(Conversation.id))
+        .filter(Conversation.user_id == current_user.id)
+        .scalar()
+        or 0
+    )
+
+    total_messages = (
+        db.query(func.count(Message.id))
+        .join(Conversation, Message.conversation_id == Conversation.id)
+        .filter(Conversation.user_id == current_user.id, Message.role == "user")
+        .scalar()
+        or 0
+    )
+
+    assistant_messages = (
+        db.query(Message)
+        .join(Conversation, Message.conversation_id == Conversation.id)
+        .filter(
+            Conversation.user_id == current_user.id,
+            Message.role == "assistant",
+        )
+        .all()
+    )
+
+    response_times = []
+    cache_hit_times = []
+    live_api_times = []
+    total_cost_saved = 0.0
+    total_tokens_used = 0
+    total_tokens_saved = 0
+    model_usage = {}
+
+    for msg in assistant_messages:
+        meta = msg.meta or {}
+        rt = meta.get("response_time_ms")
+        if isinstance(rt, (int, float)):
+            response_times.append(rt)
+            if meta.get("cache_hit") is True:
+                cache_hit_times.append(rt)
+                original_cost = meta.get("original_cost") or meta.get("cost") or 0
+                total_cost_saved += float(original_cost)
+            else:
+                live_api_times.append(rt)
+
+        tokens = meta.get("tokens_used")
+        if isinstance(tokens, (int, float)):
+            if meta.get("cache_hit") is True:
+                total_tokens_saved += int(tokens)
+            else:
+                total_tokens_used += int(tokens)
+
+        model = meta.get("model")
+        provider = meta.get("provider")
+        if model and provider:
+            key = (provider, model)
+            model_usage[key] = model_usage.get(key, 0) + 1
+
+    avg_response_time = (
+        sum(response_times) / len(response_times) if response_times else 0
+    )
+    avg_cache_hit_time = (
+        sum(cache_hit_times) / len(cache_hit_times) if cache_hit_times else 0
+    )
+    avg_live_api_time = (
+        sum(live_api_times) / len(live_api_times) if live_api_times else 0
+    )
+
+    total_assistant = len(assistant_messages)
+    cache_hits = len(cache_hit_times)
+    cache_hit_rate = (cache_hits / total_assistant * 100) if total_assistant else 0
+
+    # Fallback to cache entries when no message metadata is present
+    if total_cost_saved == 0 or total_tokens_saved == 0:
+        cache_stats = cache_service.get_user_cache_stats(db, current_user.id)
+        if total_cost_saved == 0:
+            total_cost_saved = float(cache_stats.get("total_cost_saved", 0))
+
+    top_models = [
+        {"model": model, "provider": provider, "usage": usage}
+        for (provider, model), usage in sorted(
+            model_usage.items(), key=lambda x: x[1], reverse=True
+        )[:5]
+    ]
+
+    return {
+        "totalConversations": total_conversations,
+        "totalMessages": total_messages,
+        "cacheHitRate": round(cache_hit_rate, 2),
+        "totalCostSaved": round(total_cost_saved, 6),
+        "averageResponseTime": round(avg_response_time, 2),
+        "averageResponseTimeCacheHit": round(avg_cache_hit_time, 2),
+        "averageResponseTimeLive": round(avg_live_api_time, 2),
+        "totalTokensUsed": total_tokens_used,
+        "totalTokensSaved": total_tokens_saved,
+        "topModels": top_models,
+    }
+
+
 @router.delete("/messages/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_message(
     message_id: str,
