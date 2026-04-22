@@ -2,12 +2,12 @@
 
 > **An intelligent AI chat application that slashes LLM API costs through smart response caching.**
 
-PromptSplitwise intercepts repetitive AI queries and serves cached responses — sharing the cost of LLM calls across users, just like splitting a bill. Built with a FastAPI backend and Next.js frontend, it features a hybrid global/user-level caching engine, JWT-based auth with email OTP verification, and a sleek real-time chat interface.
+PromptSplitwise intercepts repetitive AI queries and serves cached responses — sharing the cost of LLM calls across users, just like splitting a bill. Built with a FastAPI backend and React.js frontend, it features a hybrid global/user-level caching engine, JWT-based auth with email OTP verification, and a sleek real-time chat interface.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js&logoColor=white)
+![React.js](https://img.shields.io/badge/React.js-14-black?logo=React.js&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-4479A1?logo=mysql&logoColor=white)
 
 ---
@@ -26,7 +26,7 @@ PromptSplitwise intercepts repetitive AI queries and serves cached responses —
 ## 🏗️ Architecture
 
 ```
-User Browser (Next.js)
+User Browser (React.js)
         │
         │  HTTP (Axios + JWT)
         ▼
@@ -49,7 +49,7 @@ FastAPI Backend
 
 | Layer        | Technology                                         |
 |--------------|----------------------------------------------------|
-| **Frontend** | Next.js 14, TypeScript, Tailwind CSS, Zustand, React Query, Axios |
+| **Frontend** | React.js, Tailwind CSS, Zustand, React Query, Axios |
 | **Backend**  | FastAPI, Python 3.9+, SQLAlchemy 2.0, Uvicorn      |
 | **Database** | MySQL 8.0+                                         |
 | **Auth**     | JWT (python-jose), Bcrypt (Passlib), Email OTP (SMTP) |
@@ -73,7 +73,7 @@ PromptSplitwise/
 │   └── run.py            # Server entry point
 ├── frontend/
 │   ├── src/
-│   │   ├── app/          # Next.js App Router pages
+│   │   ├── app/          # React.js App Router pages
 │   │   ├── components/   # UI components (Chat, Settings, Auth)
 │   │   └── lib/          # Auth context, API client, stores, types
 │   ├── .env.local        # Frontend environment variables
@@ -258,9 +258,9 @@ The similarity threshold (`CACHE_SIMILARITY_THRESHOLD`) allows fuzzy matching so
 ### Frontend
 | Command           | Description                          |
 |-------------------|--------------------------------------|
-| `npm run dev`     | Start Next.js development server     |
+| `npm run dev`     | Start React.js development server     |
 | `npm run build`   | Build for production                 |
-| `npm run start`   | Start Next.js production server      |
+| `npm run start`   | Start React.js production server      |
 | `npm run lint`    | Run ESLint                           |
 
 ---
